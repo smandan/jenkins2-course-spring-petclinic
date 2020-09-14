@@ -1,0 +1,35 @@
+node {
+
+//    notify("Started")
+
+    try {
+	stage('checkout') {
+
+	    git 'https://github.com/smandan/jenkins2-course-spring-petclinic.git'
+	}  
+	
+	stage('compiling, testing, and packaging"') {
+
+	    sh 'mvn clean package'
+	}
+
+    } catch (err) {
+//      notify("Error ${err}")
+	echo "Caught: ${err}"
+	currentBuild.result = 'Failure'
+    }
+
+    stage('archival') {
+	step([$class: 'JUnitResultArchiver', testResults: 'target/surefire-reports/TEST-*.xml'])
+	archiveArtifacts artifacts: "target/*.?ar", followSymlinks: false
+    }
+}
+
+def notify(status){
+    emailext (
+      to: "mandas1@nationwide.com",
+      subject: "${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+      body: """<p>${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+        <p>Check console output at <a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a></p>""",
+    )
+}
