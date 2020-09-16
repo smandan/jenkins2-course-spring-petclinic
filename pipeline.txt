@@ -8,9 +8,9 @@ node {
 	    git 'https://github.com/smandan/jenkins2-course-spring-petclinic.git'
 	}  
 	
-	stage('compiling, testing, and packaging"') {
+	stage('compiling, testing,packaging, and verifying"') {
 
-	    sh 'mvn clean package'
+	    sh 'mvn clean verify'
 	}
 
     } catch (err) {
@@ -20,8 +20,16 @@ node {
     }
 
     stage('archival') {
-	step([$class: 'JUnitResultArchiver', testResults: 'target/surefire-reports/TEST-*.xml'])
-	archiveArtifacts artifacts: "target/*.?ar", followSymlinks: false
+        publishHTML(target: [allowMissing: true,
+                     alwaysLinkToLastBuild: false,
+                     escapeUnderscores: false,
+                     keepAll: true,
+                     reportDir: 'target/site/jacoco/',
+                     reportFiles: 'index.html',
+                     reportName: 'Code-Coverage',
+                     reportTitles: ''])
+	    step([$class: 'JUnitResultArchiver', testResults: 'target/surefire-reports/TEST-*.xml'])
+    	archiveArtifacts artifacts: "target/*.?ar", followSymlinks: false
     }
 }
 
