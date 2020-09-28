@@ -1,6 +1,6 @@
 node {
 
-//    notify("Started")
+    notify("Started")
 
     try {
 	stage('checkout') {
@@ -14,7 +14,7 @@ node {
 	}
 
     } catch (err) {
-//      notify("Error ${err}")
+      notify("Error ${err}")
 	echo "Caught: ${err}"
 	currentBuild.result = 'Failure'
     }
